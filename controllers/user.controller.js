@@ -57,6 +57,9 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
+        console.log("🔍 Checking user with email:", email);
+console.log("👀 Found user:", user);
+
         if (!user) {
             return res.status(400).json({ success: false, message: "User not found." });
         }
