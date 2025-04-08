@@ -5,6 +5,7 @@ import { Lecture } from "../models/lecture.model.js";
 import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
 
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
@@ -153,10 +154,31 @@ export const getCourseDetailWithPurchaseStatus = async (req, res) => {
 export const getAllPurchasedCourse = async (req, res) => {
   try {
     const userId = req.id;
-    const purchasedCourse = await CoursePurchase.find({ userId, status: "completed" }).populate("courseId");
+    console.log("📥 getAllPurchasedCourse called by userId:", userId); // ✅ Add logging
+    const purchasedCourse = await CoursePurchase.find({
+      userId,
+      status: "completed",
+    }).populate("courseId");
+
+    console.log("🎓 Purchased courses found:", purchasedCourse); // ✅ Log result
+
     return res.status(200).json({ purchasedCourse });
   } catch (error) {
-    console.error("Error in getAllPurchasedCourse:", error);
+    console.error("❌ Error in getAllPurchasedCourse:", error);
     return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getAllPurchasesAdmin = async (req, res) => {
+  try {
+    const purchases = await CoursePurchase.find({})
+      .populate("userId", "fullName email")
+      .populate("courseId", "courseTitle coursePrice");
+
+    res.status(200).json({ success: true, purchases });
+  } catch (error) {
+    console.error("Error in getAllPurchasesAdmin:", error);
+    res.status(500).json({ success: false, message: "Failed to load admin purchases" });
   }
 };
